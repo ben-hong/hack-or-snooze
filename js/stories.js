@@ -39,7 +39,6 @@ function generateStoryMarkup(story) {
 
 function putStoriesOnPage() {
   console.debug("putStoriesOnPage");
-
   $allStoriesList.empty();
 
   // loop through all of our stories and generate HTML for them
@@ -47,6 +46,22 @@ function putStoriesOnPage() {
     const $story = generateStoryMarkup(story);
     $allStoriesList.append($story);
   }
-
+  $formSubmit.hide();
   $allStoriesList.show();
 }
+
+async function getSearchData() {
+  let authorName = $('#author-name').val();
+  let storyTitle = $('#story-title').val();
+  let storyUrl = $('#story-url').val();
+  // { storyId, title, author, url, username, createdAt }
+  let newStory = await storyList.addStory(currentUser, {author: authorName, 
+    title: storyTitle, url: storyUrl})
+
+  }
+
+$('#submit-btn').on("click", (e)=> {
+  getSearchData();
+  StoryList.getStories();
+  putStoriesOnPage();
+})

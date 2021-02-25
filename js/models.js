@@ -82,7 +82,6 @@ class StoryList {
     let {storyId, title, author, url, username, createdAt} = storyData;
 
     let newStoryInstance = new Story({storyId, title, author, url, username, createdAt});
-   
     return newStoryInstance;
   }
     
