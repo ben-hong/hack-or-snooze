@@ -14,6 +14,7 @@ const $navLogin = $("#nav-login");
 const $navUserProfile = $("#nav-user-profile");
 const $navLogOut = $("#nav-logout");
 
+const $navLoggedIn = $(".nav-logged-in");
 const $navSubmit = $("#nav-submit");
 const $formSubmit = $("#submit-form");
 const $navFavorites = $('#nav-fave');
@@ -41,7 +42,7 @@ async function start() {
   // "Remember logged-in user" and log in, if credentials in localStorage
   await checkForRememberedUser();
   await getAndShowStoriesOnStart();
-
+  $navLoggedIn.hide();
   // if we got a logged-in user
   if (currentUser) updateUIOnUserLogin();
 }

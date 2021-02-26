@@ -25,9 +25,11 @@ function generateStoryMarkup(story, arg) {
   let star = "far";
 
   // reassigning to filled star class if story is a favorite
-  for (let userFav of currentUser.favorites){
-    if (userFav.storyId === story.storyId){
-      star = "fas";
+  if (currentUser){
+    for (let userFav of currentUser.favorites){
+      if (userFav.storyId === story.storyId){
+        star = "fas";
+      }
     }
   }
 
@@ -56,8 +58,6 @@ function generateStoryMarkup(story, arg) {
 function putStoriesOnPage(arg) {
   console.debug("putStoriesOnPage");
   $allStoriesList.empty();
-  
-
 
   let searchScope = storyList.stories;
   if (arg === "favorites") {
