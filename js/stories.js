@@ -19,7 +19,7 @@ async function getAndShowStoriesOnStart() {
  * Returns the markup for the story.
  */
 
-function generateStoryMarkup(story) {
+function generateStoryMarkup(story, arg) {
   // console.debug("generateStoryMarkup", story);
   // default class for empty star
   let star = "far";
@@ -30,8 +30,10 @@ function generateStoryMarkup(story) {
       star = "fas";
     }
   }
-    let trashCan = '';
-  if (currentUser.ownStories.indexOf(story) !== -1) {
+
+  // adding trashcans to My Stories page only
+  let trashCan = '';
+  if (arg === "ownStories") {
     trashCan = `<i class="fas fa-trash-alt"></i>`;
   }
   const hostName = story.getHostName();
@@ -54,22 +56,33 @@ function generateStoryMarkup(story) {
 function putStoriesOnPage(arg) {
   console.debug("putStoriesOnPage");
   $allStoriesList.empty();
+  
+
 
   let searchScope = storyList.stories;
   if (arg === "favorites") {
     searchScope = currentUser.favorites;
   }
+
   if (arg === "ownStories") {
     searchScope = currentUser.ownStories;
   }
   
+  if (searchScope.length === 0 && arg === "favorites"){
+    $("#empty-message").html("No favorites added!");
+  }
+  else if(searchScope.length === 0 && arg === "ownStories"){
+    $("#empty-message").html("No stories added by user yet!");
+  }
+  
   // loop through all of our stories and generate HTML for them
-  //while (currentUser.favorites.length > 0){
+  else{
+    $("#empty-message").html("");
     for (let story of searchScope) {
-      const $story = generateStoryMarkup(story);  
+      const $story = generateStoryMarkup(story,arg);  
       $allStoriesList.append($story);
     }
-  //}
+  };
   
   $formSubmit.hide();
   $allStoriesList.show();
@@ -109,6 +122,5 @@ $allStoriesList.on("click", ".fa-trash-alt", async (e) => {
   await currentUser.removeOwnStory($(e.target).parent().attr("id"));
   putStoriesOnPage("ownStories");
 });
-
 
 
