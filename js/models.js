@@ -229,4 +229,16 @@ class User {
     // update currentUser favorites to match API results and map to Story classes
     this.favorites = favoritesResponse.data.user.favorites.map(s => new Story({...s, favorite: true}));
   }
+
+  async removeOwnStory(idDelete) {
+    let storyResponse = await axios.delete(`${BASE_URL}/stories/${idDelete}`,
+    { data: { token: this.loginToken }});
+    for (let ownStory of this.ownStories) {
+      if (ownStory.storyId === idDelete) {
+        let ownStoryIndex = this.ownStories.indexOf(ownStory);
+        this.ownStories.splice(ownStoryIndex, 1);
+      }
+    }
+  }
 }
+

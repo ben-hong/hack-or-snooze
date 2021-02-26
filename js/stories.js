@@ -30,10 +30,14 @@ function generateStoryMarkup(story) {
       star = "fas";
     }
   }
-
+    let trashCan = '';
+  if (currentUser.ownStories.indexOf(story) !== -1) {
+    trashCan = `<i class="fas fa-trash-alt"></i>`;
+  }
   const hostName = story.getHostName();
   return $(`
       <li id="${story.storyId}">
+        ${trashCan}
         <i class="${star} fa-star"></i>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
@@ -55,11 +59,14 @@ function putStoriesOnPage(arg) {
   if (arg === "favorites") {
     searchScope = currentUser.favorites;
   }
+  if (arg === "ownStories") {
+    searchScope = currentUser.ownStories;
+  }
   
   // loop through all of our stories and generate HTML for them
   //while (currentUser.favorites.length > 0){
     for (let story of searchScope) {
-      const $story = generateStoryMarkup(story);
+      const $story = generateStoryMarkup(story);  
       $allStoriesList.append($story);
     }
   //}
@@ -76,9 +83,10 @@ async function getSearchData() {
 
   $formSubmit.trigger("reset");
   
-  await storyList.addStory(currentUser, {author: authorName, 
+  let storyInstance = await storyList.addStory(currentUser, {author: authorName, 
     title: storyTitle, url: storyUrl})
 
+    currentUser.ownStories.unshift(storyInstance);
   }
 
 // event listener for submit button, refreshes storyList and HTML
@@ -96,4 +104,11 @@ $allStoriesList.on("click", ".fa-star", async (e) => {
 
   $(e.target).toggleClass("far fas");
 });
+
+$allStoriesList.on("click", ".fa-trash-alt", async (e) => {
+  await currentUser.removeOwnStory($(e.target).parent().attr("id"));
+  putStoriesOnPage("ownStories");
+});
+
+
 
