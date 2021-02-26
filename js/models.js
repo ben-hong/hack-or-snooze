@@ -12,22 +12,30 @@ class Story {
    *   - {title, author, url, username, storyId, createdAt}
    */
 
-  constructor({ storyId, title, author, url, username, createdAt }) {
+  constructor({ storyId, title, author, url, username, createdAt, favorite = false}) {
     this.storyId = storyId;
     this.title = title;
     this.author = author;
     this.url = url;
     this.username = username;
     this.createdAt = createdAt;
-    this.favorite = false;
+    this.favorite = favorite;
   }
 
   /** Parses hostname out of URL and returns it. */
 
   getHostName() {
     // UNIMPLEMENTED: complete this function!
-    return "hostname.com";
+    return this.url;
   }
+
+  // checkForFavorite() {
+  //   for (let favoriteStory of currentUser.favorites){
+  //     if(favoriteStory.storyId === this.storyId){
+  //       this.favorite = true;
+  //     }
+  //   }
+  // }
 }
 
 
@@ -113,7 +121,7 @@ class User {
     this.createdAt = createdAt;
 
     // instantiate Story instances for the user's favorites and ownStories
-    this.favorites = favorites.map(s => new Story(s));
+    this.favorites = favorites.map(s => new Story({...s, favorite: true}));
     this.ownStories = ownStories.map(s => new Story(s));
 
     // store the login token on the user so it's easy to find for API calls.
@@ -204,38 +212,21 @@ class User {
   }
 
   async addFavorite(storyId) {
-    let storyResponse = await axios.get(`${BASE_URL}/stories/${storyId}`);
-    for (let story of storyList.stories){
-
-      if (story.storyId === storyResponse.data.story.storyId){
-        story.favorite = true;
-        break;
-      }
-    }
-    
     let favoritesResponse = await axios.post(`${BASE_URL}/users/${this.username}/favorites/${storyId}`,
-    { "token": this.loginToken});
-    this.favorites = favoritesResponse.data.user.favorites;
+    { token: this.loginToken });
+
+    // update currentUser favorites to match API results and map to Story classes
+    this.favorites = favoritesResponse.data.user.favorites.map(s => new Story({...s, favorite: true}));
+
+   
+    
   }
 
   async removeFavorite(storyId) {
-    let storyResponse = await axios.get(`${BASE_URL}/stories/${storyId}`);
-    
-    for (let story of this.favorites){
-      if(story.storyId === storyResponse.data.story.storyId){
-        story.favorite = false;
-        break;
-      }
-    }
-    
-    // debugger;
     let favoritesResponse = await axios.delete(`${BASE_URL}/users/${this.username}/favorites/${storyId}`,
-    { "token": this.loginToken});
+    { data: { token: this.loginToken }});
 
-    this.favorites = favoritesResponse.data.user.favorites;
+    // update currentUser favorites to match API results and map to Story classes
+    this.favorites = favoritesResponse.data.user.favorites.map(s => new Story({...s, favorite: true}));
   }
-  
-
-
-
 }

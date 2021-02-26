@@ -21,11 +21,20 @@ async function getAndShowStoriesOnStart() {
 
 function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
+  // default class for empty star
+  let star = "far";
+
+  // reassigning to filled star class if story is a favorite
+  for (let userFav of currentUser.favorites){
+    if (userFav.storyId === story.storyId){
+      star = "fas";
+    }
+  }
 
   const hostName = story.getHostName();
   return $(`
       <li id="${story.storyId}">
-        <i class="far fa-star"></i>
+        <i class="${star} fa-star"></i>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -38,15 +47,23 @@ function generateStoryMarkup(story) {
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
-function putStoriesOnPage() {
+function putStoriesOnPage(arg) {
   console.debug("putStoriesOnPage");
   $allStoriesList.empty();
 
-  // loop through all of our stories and generate HTML for them
-  for (let story of storyList.stories) {
-    const $story = generateStoryMarkup(story);
-    $allStoriesList.append($story);
+  let searchScope = storyList.stories;
+  if (arg === "favorites") {
+    searchScope = currentUser.favorites;
   }
+  
+  // loop through all of our stories and generate HTML for them
+  //while (currentUser.favorites.length > 0){
+    for (let story of searchScope) {
+      const $story = generateStoryMarkup(story);
+      $allStoriesList.append($story);
+    }
+  //}
+  
   $formSubmit.hide();
   $allStoriesList.show();
 }
@@ -71,13 +88,12 @@ $formSubmit.on("submit", async (e)=> {
   putStoriesOnPage();
 })
 
-// event listener for star
-$allStoriesList.on("click", ".far", async (e) => {
-  await currentUser.addFavorite($(e.target).parent().attr("id"));
-  $(e.target).attr("class", "fas fa-star");
-})
-
-$allStoriesList.on("click", ".fas", async (e) => {
+// runs addFavorite/removeFavorite and changes star icon
+$allStoriesList.on("click", ".fa-star", async (e) => {
+  $(e.target).hasClass("far") ? 
+  await currentUser.addFavorite($(e.target).parent().attr("id")) :
   await currentUser.removeFavorite($(e.target).parent().attr("id"));
-  $(e.target).attr("class", "far fa-star");
-})
+
+  $(e.target).toggleClass("far fas");
+});
+

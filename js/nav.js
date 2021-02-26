@@ -41,3 +41,8 @@ function navSubmitClick() {
 
 $navSubmit.on("click", navSubmitClick);
 
+function navFavoritesClick() {
+  putStoriesOnPage("favorites");
+}
+
+$navFavorites.on("click", navFavoritesClick);
