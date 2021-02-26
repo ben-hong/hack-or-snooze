@@ -19,6 +19,7 @@ class Story {
     this.url = url;
     this.username = username;
     this.createdAt = createdAt;
+    this.favorite = false;
   }
 
   /** Parses hostname out of URL and returns it. */
@@ -74,14 +75,15 @@ class StoryList {
    */
 
   async addStory(user, newStory) {
-    let storyObj = await axios.post("https://hack-or-snooze-v3.herokuapp.com/stories",
-      {token: user.loginToken, story: {author: newStory.author, 
-        title: newStory.title, url: newStory.url}}); 
+    let storyObj = await axios.post(`${BASE_URL}/stories`,
+      {token: user.loginToken, story: newStory}); 
     
     let storyData = storyObj.data.story; 
     let {storyId, title, author, url, username, createdAt} = storyData;
 
     let newStoryInstance = new Story({storyId, title, author, url, username, createdAt});
+    this.stories.unshift(newStoryInstance);
+
     return newStoryInstance;
   }
     
@@ -200,4 +202,40 @@ class User {
       return null;
     }
   }
+
+  async addFavorite(storyId) {
+    let storyResponse = await axios.get(`${BASE_URL}/stories/${storyId}`);
+    for (let story of storyList.stories){
+
+      if (story.storyId === storyResponse.data.story.storyId){
+        story.favorite = true;
+        break;
+      }
+    }
+    
+    let favoritesResponse = await axios.post(`${BASE_URL}/users/${this.username}/favorites/${storyId}`,
+    { "token": this.loginToken});
+    this.favorites = favoritesResponse.data.user.favorites;
+  }
+
+  async removeFavorite(storyId) {
+    let storyResponse = await axios.get(`${BASE_URL}/stories/${storyId}`);
+    
+    for (let story of this.favorites){
+      if(story.storyId === storyResponse.data.story.storyId){
+        story.favorite = false;
+        break;
+      }
+    }
+    
+    // debugger;
+    let favoritesResponse = await axios.delete(`${BASE_URL}/users/${this.username}/favorites/${storyId}`,
+    { "token": this.loginToken});
+
+    this.favorites = favoritesResponse.data.user.favorites;
+  }
+  
+
+
+
 }

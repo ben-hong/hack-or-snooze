@@ -25,6 +25,7 @@ function generateStoryMarkup(story) {
   const hostName = story.getHostName();
   return $(`
       <li id="${story.storyId}">
+        <i class="far fa-star"></i>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -50,18 +51,33 @@ function putStoriesOnPage() {
   $allStoriesList.show();
 }
 
+// getting submit values and calling addStory
 async function getSearchData() {
   let authorName = $('#author-name').val();
   let storyTitle = $('#story-title').val();
   let storyUrl = $('#story-url').val();
-  // { storyId, title, author, url, username, createdAt }
-  let newStory = await storyList.addStory(currentUser, {author: authorName, 
+
+  $formSubmit.trigger("reset");
+  
+  await storyList.addStory(currentUser, {author: authorName, 
     title: storyTitle, url: storyUrl})
 
   }
 
-$('#submit-btn').on("click", (e)=> {
-  getSearchData();
-  StoryList.getStories();
+// event listener for submit button, refreshes storyList and HTML
+$formSubmit.on("submit", async (e)=> {
+  e.preventDefault();
+  await getSearchData();
   putStoriesOnPage();
+})
+
+// event listener for star
+$allStoriesList.on("click", ".far", async (e) => {
+  await currentUser.addFavorite($(e.target).parent().attr("id"));
+  $(e.target).attr("class", "fas fa-star");
+})
+
+$allStoriesList.on("click", ".fas", async (e) => {
+  await currentUser.removeFavorite($(e.target).parent().attr("id"));
+  $(e.target).attr("class", "far fa-star");
 })

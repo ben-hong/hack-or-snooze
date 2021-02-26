@@ -36,7 +36,7 @@ function updateNavOnLogin() {
 }
 
 function navSubmitClick() {
-    $formSubmit.show();
+  $formSubmit.show();
 }
 
 $navSubmit.on("click", navSubmitClick);
