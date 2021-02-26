@@ -2,6 +2,8 @@
 
 // This is the global list of the stories, an instance of StoryList
 let storyList;
+const FAVORITES = "favorites";
+const OWNSTORIES = "ownStories";
 
 /** Get and show stories when site first loads. */
 
@@ -35,7 +37,7 @@ function generateStoryMarkup(story, arg) {
 
   // adding trashcans to My Stories page only
   let trashCan = '';
-  if (arg === "ownStories") {
+  if (arg === OWNSTORIES) {
     trashCan = `<i class="fas fa-trash-alt"></i>`;
   }
   const hostName = story.getHostName();
@@ -60,18 +62,18 @@ function putStoriesOnPage(arg) {
   $allStoriesList.empty();
 
   let searchScope = storyList.stories;
-  if (arg === "favorites") {
+  if (arg === FAVORITES) {
     searchScope = currentUser.favorites;
   }
 
-  if (arg === "ownStories") {
+  if (arg === OWNSTORIES) {
     searchScope = currentUser.ownStories;
   }
   
-  if (searchScope.length === 0 && arg === "favorites"){
+  if (searchScope.length === 0 && arg === FAVORITES){
     $("#empty-message").html("No favorites added!");
   }
-  else if(searchScope.length === 0 && arg === "ownStories"){
+  else if(searchScope.length === 0 && arg === OWNSTORIES){
     $("#empty-message").html("No stories added by user yet!");
   }
   
@@ -120,7 +122,7 @@ $allStoriesList.on("click", ".fa-star", async (e) => {
 
 $allStoriesList.on("click", ".fa-trash-alt", async (e) => {
   await currentUser.removeOwnStory($(e.target).parent().attr("id"));
-  putStoriesOnPage("ownStories");
+  putStoriesOnPage(OWNSTORIES);
 });
 
 

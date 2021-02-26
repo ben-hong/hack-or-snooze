@@ -231,11 +231,19 @@ class User {
     await axios.delete(`${BASE_URL}/stories/${idDelete}`,
     { data: { token: this.loginToken }});
  
-    // remove deleted story from DOM
+    // remove deleted story from ownStories
     for (let ownStory of this.ownStories) {
       if (ownStory.storyId === idDelete) {
         let ownStoryIndex = this.ownStories.indexOf(ownStory);
         this.ownStories.splice(ownStoryIndex, 1);
+      }
+    }
+
+    // remove deleted story from favorites
+    for (let ownStory of this.favorites) {
+      if (ownStory.storyId === idDelete) {
+        let ownStoryIndex = this.favorites.indexOf(ownStory);
+        this.favorites.splice(ownStoryIndex, 1);
       }
     }
 
